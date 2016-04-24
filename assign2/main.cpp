@@ -58,7 +58,7 @@ int main()
         // Report how well the training is working, average over recent samples:
         std::cout << "loss: "
                 << myNet.getError() << std::endl;
-        if(trainingIteration > 100) break;
+        //if(trainingIteration > 2) break;
     }
 
     std::cout << std::endl << "Training Complete" << std::endl;

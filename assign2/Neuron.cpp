@@ -29,9 +29,11 @@ double Neuron::computeOutput(std::vector<Neuron> inputs)
 	}
 	currentOutput = 0;
 	for(int i=0; i<inputs.size(); ++i){
-		currentOutput += weights[i] * inputs[i].getOutput();
+		currentOutput += (weights[i] * inputs[i].getOutput());
 	}
+	//cout << "output: " << currentOutput;
 	currentOutput = 1.0 / (1 + exp(-1 * currentOutput));
+	//cout << "\t sigmoid(output): " << currentOutput << endl;
 	return currentOutput;
 }
 
@@ -55,13 +57,11 @@ void Neuron::updateWeights(std::vector<Neuron> inputs, double eta)
 	if(inputs.size() != weights.size()){
 		errMsg("dimension does not match");
 	}
-	//cout << "In Neuron updateWeights, eta = " << eta << endl;
 	for(int i=0; i<inputs.size(); ++i){
-		//cout << "eta: " << eta << ", sigma: " << sigma << ", output: " << inputs[i].getOutput() << endl;
-		weights[i] += eta * sigma * inputs[i].getOutput();
-		cout << weights[i] << " ";
+		double delta = eta * sigma * inputs[i].getOutput();
+		weights[i] += delta;
+		//cout << "delta: " << delta << endl;
 	}
-	//cout << endl;
 }
 
 double Neuron::getWeight(int idx) const
