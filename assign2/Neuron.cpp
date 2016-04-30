@@ -11,7 +11,7 @@ Neuron::Neuron(int numOfInputs)
 	srand(time(NULL));
 	weights = vector<double>(numOfInputs);
 	for(int i=0; i < weights.size(); ++i){
-		weights[i] = (rand() % 2000 - 1000) / 100000.0;
+		weights[i] = (rand() % 1000) / 1000.0; // weights range [0, 1]
 	}
 	sigma = 0;
 	currentOutput = 0;
