@@ -36,6 +36,13 @@ void Grid::Intialize(void) {
     /*
      * add
      */
+    // initialize all policies to be N and values to be 0
+    for(int i=0; i<nrow_; ++i){
+        for(int j=0; j<ncol_; ++j){
+            states_[i][j].set_policy(0);
+            states_[i][j].set_value(0);
+        }
+    }
 }
 
 void Grid::PolicyIteration(void) {
@@ -43,17 +50,23 @@ void Grid::PolicyIteration(void) {
     /* 
      * add
      */
+    initialize();
+
     int cnt = 0;
-
-
     cout << "iter: " << cnt << endl;
     print_values();
     print_policy();
     cout << endl;
-    while(/* add */) {
+
+    bool policy_stable = false;
+
+    while(!policy_stable) {
         /*
          * add
          */
+        PolicyEvaluation();
+        policy_stable = PolicyImprovement();
+
         cnt++;
         cout << "iter: " << cnt << endl;
         print_values();
@@ -69,6 +82,8 @@ void Grid::ValueIteration(void) {
     /*
      * add
      */
+    initialize();
+
     cout << "iter: " << cnt << endl;
     print_values();
     cout << endl;
@@ -101,13 +116,57 @@ void Grid::PolicyEvaluation(void) {
     /* 
      * add
      */
+     double delta;
+     do{
+        delta = 0;
+        for(int i=0; i<nrow_; ++i){
+            for(int j=0; j<ncol_; ++j){
+                State &s = states_[i][j];
+                double value = s.value();
+                double newValue = 0;
+
+                const Action& actions = s.get_action();
+                // sp: s_prime
+                for(auto sp: actions){
+                    double next_state_value = states_[sp.id.row][sp.id.col].value();
+                    newValue += sp.proba * (sp.reward + gamma_ * next_state_value);
+                }
+                delta = max(delta, abs(value - newValue));
+            }
+        }
+     }while(delta > theta_);
 }
 
 bool Grid::PolicyImprovement(void) {
     /*
      * add
      */
-    return stable;
+    bool policy_stable = true;
+    for(int i=0; i<nrow_; ++i){
+        for(int j=0; j<ncol_; ++j){
+            State &s = states_[i][j];
+            unsigned current_policy = s.policy();
+            double best_value = s.value();
+            unsigned best_policy = current_policy;
+            for(unsigned k=0; k<4; ++k){
+                if(k = current_policy) continue;
+                const Action &actions = s.get_action(k);
+                double sum = 0;
+                for(auto sp: actions){
+                    double next_state_value = states_[sp.id.row][sp.id.col].value();
+                    sum += sp.proba * (sp.reward + gamma_ * next_state_value);
+                }
+                if(sum > best_value){
+                    policy_stable = false;
+                    best_value = sum;
+                    best_policy = k;
+                }
+            }
+            s.set_policy(best_policy);
+            s.set_value(best_value);
+        }
+    }
+    return policy_stable;
 }
 
 
