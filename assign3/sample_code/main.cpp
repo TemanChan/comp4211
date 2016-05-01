@@ -2,22 +2,22 @@
 
 
 int main(void) {
-  /* create the grid */
-  Grid mygrid(5, 5);
+    /* create the grid */
+    Grid mygrid(5, 5);
   
-  /* print the summary */
-  mygrid.print();
+    /* print the summary */
+    mygrid.print();
 
-  /* Policy Iteration */
-  //mygrid.PolicyIteration();
+    /* Policy Iteration */
+    //mygrid.PolicyIteration();
 
-  /* print the summary */
-  //mygrid.print();
+    /* print the summary */
+    //mygrid.print();
 
-  /* Value Iteration*/
-  //mygrid.ValueIteration();
+    /* Value Iteration*/
+    //mygrid.ValueIteration();
 
-  /* print the summary */
-  //mygrid.print();
-  return 0;
+    /* print the summary */
+    //mygrid.print();
+    return 0;
 }
