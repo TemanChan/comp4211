@@ -1,4 +1,4 @@
-#include"state.h"
+#include "state.h"
 
 
 const char *dir_names[] = {"North", "South", "West", "East"};

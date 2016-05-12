@@ -1,4 +1,5 @@
-#include"grid.h"
+#include "grid.h"
+#include <limits>
 
 /* the possible directions for an action */
 // N(-1, 0) S(1, 0) W(0, -1) E(0, 1)
@@ -32,7 +33,7 @@ const double proba_set[3] = {DIR1_PROBA, DIR2_PROBA, DIR2_PROBA};
 const char *dir_names_short[] = {"N", "S", "W", "E"};
 
 
-void Grid::Intialize(void) {
+void Grid::Initialize(void) {
     /*
      * add
      */
@@ -50,7 +51,7 @@ void Grid::PolicyIteration(void) {
     /* 
      * add
      */
-    initialize();
+    Initialize();
 
     int cnt = 0;
     cout << "iter: " << cnt << endl;
@@ -82,15 +83,37 @@ void Grid::ValueIteration(void) {
     /*
      * add
      */
-    initialize();
+    Initialize();
 
     cout << "iter: " << cnt << endl;
     print_values();
     cout << endl;
-    while (/* add */) {
+
+    while (true) {
         /*
          * add
-         */ 
+         */
+        double delta = 0;
+        for(int i=0; i<nrow_; ++i){
+            for(int j=0; j<ncol_; ++j){
+                State &s = states_[i][j];
+                double current_value = s.value();
+                double max_value = current_value;
+                for(unsigned k=0; k<4; ++k){
+                    const Action &action = s.get_action(k);
+                    double sum = 0;
+                    for(auto sp: action){
+                        double next_state_value = states_[sp.id.row][sp.id.col].value();
+                        sum += sp.proba * (sp.reward + gamma_ * next_state_value);
+                    }
+                    if(sum > max_value){
+                        max_value = sum;
+                    }
+                }
+                delta = max(delta, abs(current_value - max_value));
+                s.set_value(max_value);
+            }
+        }
         cnt++;
         cout << "iter: " << cnt << endl;
         cout << "delta: " << delta << endl;
@@ -99,10 +122,33 @@ void Grid::ValueIteration(void) {
         /*
          * add
          */
+        if(delta < theta_){
+            break;
+        }
     }
 
     /* determine policy */
-  
+    for(int i=0; i<nrow_; ++i){
+        for(int j=0; j<ncol_; ++j){
+            State &s = states_[i][j];
+            double max_value = -1 * numeric_limits<double>::max();
+            unsigned optimal_policy = 0;
+            for(unsigned k=0; k<4; ++k){
+                const Action &action = s.get_action(k);
+                double sum = 0;
+                for(auto sp: action){
+                    double next_state_value = states_[sp.id.row][sp.id.col].value();
+                    sum += sp.proba * (sp.reward + gamma_ * next_state_value);
+                }
+                if(sum > max_value){
+                    max_value = sum;
+                    optimal_policy = k;
+                }
+            }
+            s.set_policy(optimal_policy);
+        }
+    }
+
     /*
      * add
      */
@@ -116,31 +162,33 @@ void Grid::PolicyEvaluation(void) {
     /* 
      * add
      */
-     double delta;
-     do{
+    double delta;
+    do{
         delta = 0;
         for(int i=0; i<nrow_; ++i){
             for(int j=0; j<ncol_; ++j){
-                State &s = states_[i][j];
-                double value = s.value();
-                double newValue = 0;
+               State &s = states_[i][j];
+               double value = s.value();
+               double newValue = 0;
 
-                const Action& actions = s.get_action();
-                // sp: s_prime
-                for(auto sp: actions){
-                    double next_state_value = states_[sp.id.row][sp.id.col].value();
-                    newValue += sp.proba * (sp.reward + gamma_ * next_state_value);
-                }
-                delta = max(delta, abs(value - newValue));
+               const Action &action = s.get_action();
+               // sp: s_prime
+               for(auto sp: action){
+                   double next_state_value = states_[sp.id.row][sp.id.col].value();
+                   newValue += sp.proba * (sp.reward + gamma_ * next_state_value);
+               }
+               s.set_value(newValue);
+               delta = max(delta, abs(value - newValue));
             }
         }
-     }while(delta > theta_);
+    }while(delta > theta_);
 }
 
 bool Grid::PolicyImprovement(void) {
     /*
      * add
      */
+    cout << "improvement" << endl;
     bool policy_stable = true;
     for(int i=0; i<nrow_; ++i){
         for(int j=0; j<ncol_; ++j){
@@ -149,10 +197,10 @@ bool Grid::PolicyImprovement(void) {
             double best_value = s.value();
             unsigned best_policy = current_policy;
             for(unsigned k=0; k<4; ++k){
-                if(k = current_policy) continue;
-                const Action &actions = s.get_action(k);
+                if(k == current_policy) continue;
+                const Action &action = s.get_action(k);
                 double sum = 0;
-                for(auto sp: actions){
+                for(auto sp: action){
                     double next_state_value = states_[sp.id.row][sp.id.col].value();
                     sum += sp.proba * (sp.reward + gamma_ * next_state_value);
                 }

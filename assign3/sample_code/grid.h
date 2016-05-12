@@ -3,8 +3,8 @@
 
 #include "state.h"
 #include "parameter.h"
-#include<float.h>
-#include<cmath>
+#include <float.h>
+#include <cmath>
 
 /* Row of states */
 typedef vector<State> StateRow;
@@ -19,7 +19,7 @@ public:
     /* Value Iteration */ 
     void ValueIteration(void);
     /* Initialize values and policies */
-    void Intialize(void);
+    void Initialize(void);
 
     inline double get_state_value(StateID id) const 
     { return states_[id.row][id.col].value(); }

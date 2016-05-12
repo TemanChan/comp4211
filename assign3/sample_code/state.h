@@ -1,15 +1,15 @@
 #ifndef STATE_H
 #define STATE_H
 
-#include<cstdlib>
-#include<vector>
-#include<utility>
-#include<string>
-#include<iostream>
-#include<sstream>
-#include<algorithm>
+#include <cstdlib>
+#include <vector>
+#include <utility>
+#include <string>
+#include <iostream>
+#include <sstream>
+#include <algorithm>
 
-#include"parameter.h"
+#include "parameter.h"
 
 
 using namespace std;
@@ -44,6 +44,7 @@ public:
     double proba;
     double reward;
 };
+
 /* an action is a set of results */
 typedef vector<NextState> Action;
 
