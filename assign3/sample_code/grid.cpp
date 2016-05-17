@@ -304,7 +304,7 @@ void Grid::print_values(void) const {
     cout << "values";
     cout << endl;
     for (int i = 0; i < nrow_; i++) {
-        for (int j = 0; j < nrow_; j++) {
+        for (int j = 0; j < ncol_; j++) {
             cout << states_[i][j].value() << " ";
         }
         cout << endl;
@@ -316,7 +316,7 @@ void Grid::print_policy(void) const {
     cout << "actions";
     cout << endl;
     for (int i = 0; i < nrow_; i++) {
-        for (int j = 0; j < nrow_; j++) {
+        for (int j = 0; j < ncol_; j++) {
             cout << dir_names_short[states_[i][j].policy()] << " ";
         }
         cout << endl;
