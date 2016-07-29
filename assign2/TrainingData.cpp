@@ -1,17 +1,16 @@
+#include <limits>
 #include "TrainingData.h"
+using namespace std;
 
-TrainingData::TrainingData(const std::string filename)
+TrainingData::TrainingData(const string filename)
 {
     m_trainingDataFile.open(filename.c_str());
-}
 
-void TrainingData::getTopology(std::vector<unsigned> &topology)
-{
-    std::string line;
-    std::string label;
+    string line;
+    string label;
 
     getline(m_trainingDataFile, line);
-    std::stringstream ss(line);
+    stringstream ss(line);
     ss >> label;
     if (this->isEof() || label.compare("topology:") != 0) {
         abort();
@@ -20,48 +19,50 @@ void TrainingData::getTopology(std::vector<unsigned> &topology)
     while (!ss.eof()) {
         unsigned n;
         ss >> n;
-        topology.push_back(n);
+        m_topology.push_back(n);
     }
-
-    return;
 }
 
-unsigned TrainingData::getNextInputs(std::vector<double> &inputVals)
+void TrainingData::restart()
+{
+    m_trainingDataFile.seekg(0);
+    m_trainingDataFile.ignore(numeric_limits<streamsize>::max(), '\n');
+}
+
+void TrainingData::getTopology(vector<unsigned> &topology)
+{
+    topology.clear();
+    topology.reserve(m_topology.size());
+    for(int n: m_topology){
+        topology.push_back(n);
+    }
+}
+
+void TrainingData::getNextSample(vector<double> &inputVals, vector<double> &targetVals)
 {
     inputVals.clear();
+    targetVals.clear();
 
-    std::string line;
+    string line;
+    string label;
     getline(m_trainingDataFile, line);
-    std::stringstream ss(line);
+    stringstream inss(line);
+    getline(m_trainingDataFile, line);
+    stringstream outss(line);
 
-    std::string label;
-    ss>> label;
+    inss >> label;
     if (label.compare("in:") == 0) {
         double oneValue;
-        while (ss >> oneValue) {
+        while (inss >> oneValue) {
             inputVals.push_back(oneValue);
         }
     }
 
-    return inputVals.size();
-}
-
-unsigned TrainingData::getTargetOutputs(std::vector<double> &targetOutputVals)
-{
-    targetOutputVals.clear();
-
-    std::string line;
-    getline(m_trainingDataFile, line);
-    std::stringstream ss(line);
-
-    std::string label;
-    ss>> label;
+    outss >> label;
     if (label.compare("out:") == 0) {
         double oneValue;
-        while (ss >> oneValue) {
-            targetOutputVals.push_back(oneValue);
+        while (outss >> oneValue) {
+            targetVals.push_back(oneValue);
         }
     }
-
-    return targetOutputVals.size();
 }

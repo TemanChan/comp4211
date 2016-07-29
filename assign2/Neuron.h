@@ -6,7 +6,7 @@
 class Neuron
 {
 public:
-	Neuron(int numOfInputs);
+	Neuron(int numOfInputs, const std::string &actFunc = "s");
 	void setOutput(double output);
 	double computeOutput(std::vector<Neuron> inputs);
 	double getOutput() const;
@@ -16,6 +16,10 @@ public:
 	double getSigma() const;
 
 private:
+	static double sigmoid(double x);
+	static double ReLU(double x);
+	static double leakyReLU(double x);
+	double (*activationFunction)(double);
 	std::vector<double> weights;
 	double currentOutput;
 	double sigma;

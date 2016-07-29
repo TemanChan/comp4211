@@ -1,15 +1,39 @@
 #include "Net.h"
 using namespace std;
 
-Net::Net(const vector<unsigned> &topology, const double myEta)
+Net::Net(const vector<unsigned> &topology, const double myEta, const string &actFunc)
 {
 	eta = myEta;
 	layers = vector<vector<Neuron> >(topology.size());
 	int numInputs = 0;
 	for(int i=0; i<topology.size(); ++i){
-		layers[i] = vector<Neuron>(topology[i], Neuron(numInputs));
+		layers[i] = vector<Neuron>(topology[i], Neuron(numInputs, actFunc));
 		numInputs = topology[i];
 	}
+
+	if(actFunc.compare("r") == 0){
+		deriv = ReLUDeriv;
+	}else if(actFunc.compare("lr") == 0){
+		deriv = leakyReLUDeriv;
+	}else{
+		deriv = sigmoidDeriv;
+	}
+}
+
+
+double Net::sigmoidDeriv(double y)
+{
+	return y * (1 - y);
+}
+
+double Net::ReLUDeriv(double y)
+{
+	return y > 0 ? 1 : 0;
+}
+
+double Net::leakyReLUDeriv(double y)
+{
+	return y > 0 ? 1 : 0.001;
 }
 
 void Net::feedForward(const vector<double> &inputVals)
@@ -33,8 +57,8 @@ void Net::backProp(const vector<double> &targetVals)
 	for(int i=0; i<layers[n-1].size(); ++i){
 		Neuron &neuron = layers[n-1][i];
 		double output = neuron.getOutput();
-		double sigma = output * (1 - output) * (targetVals[i] - output);
-        	//cout << "sigma: " << sigma << endl;
+		double sigma = deriv(output) * (targetVals[i] - output);
+		//cout << "sigma: " << sigma << endl;
 		neuron.setSigma(sigma);
 	}
 
@@ -43,13 +67,18 @@ void Net::backProp(const vector<double> &targetVals)
 		for(int j=0; j<layers[i].size(); ++j){
 			Neuron &neuron = layers[i][j];
 			double output = neuron.getOutput();
-			double sum = 0;
-			for(int k=0; k<layers[i+1].size(); ++k){
-				sum += (layers[i+1][k].getWeight(j) * layers[i+1][k].getSigma());
+			double d = deriv(output);
+			if(d == 0){
+				neuron.setSigma(0);
+			}else{
+				double sum = 0;
+				for(int k=0; k<layers[i+1].size(); ++k){
+					sum += (layers[i+1][k].getWeight(j) * layers[i+1][k].getSigma());
+				}
+				double sigma = d * sum;
+				//cout << "sigma: " << sigma << endl;
+				neuron.setSigma(sigma);
 			}
-			double sigma = output * (1 - output) * sum;
-            	//cout << "sigma: " << sigma << endl;
-			neuron.setSigma(sigma);
 		}
 	}
 
